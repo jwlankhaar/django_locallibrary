@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load customtags %}
+    {% block title %}
+    <title>Local Library</title>{% endblock %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
+        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
+        crossorigin="anonymous"></script>
+    <!-- Add additional CSS in static file. -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-2">
+                {% block sidebar %}
+                <ul class="sidebar-nav">
+                    <li>
+                        <a href="{% url 'index' %}">Home</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'books' %}">All books</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'authors' %}">All authors</a>
+                    </li>
+                    <br/>
+                    {% if user.is_authenticated %}
+                        <li>
+                            User: {{ user.get_username }}
+                        </li>
+                        <li>
+                            <a href="{% url 'my-borrowed' %}">My Borrowed</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'logout' %}?next={{request.path}}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="{% url 'login' %}?next={{request.path}}">Login</a>                            
+                        </li>
+                    {% endif %}
+                    {% if user|has_group:"Librarians" or user.is_staff %}
+                        <li>
+                            <br/>
+                            Staff
+                        </li>
+                        <li>
+                            <a href="{% url 'all-borrowed' %}">All borrowed</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'admin:index' %}">Admin</a>
+                        </li>
+                    {% endif %}
+                </ul>
+                {% endblock %}
+            </div>
+            <div class="col-sm-10">
+                {% block content %}{% endblock %} {% block pagination %} {% if is_paginated %}
+                <div class="pagination">
+                    <span class="page-links">
+                        <table style="width:500px">
+                            <tr>
+                                <td style="width:30%">
+                                    {% if page_obj.has_previous %}
+                                    <a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">&lt;&lt;</a>
+                                    {% endif %}
+
+                                </td>
+                                <td style="width:40%">
+                                    <span class="page-current">
+                                        <span class="text-muted">
+                                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                                        </span>
+                                    </span>
+
+                                </td>
+                                <td style="width:30%">
+                                    {% if page_obj.has_next %}
+                                    <a href="{{ request.path }}?page={{ page_obj.next_page_number }}">&gt;&gt;</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </span>
+                </div>
+                {% endif %} {% endblock %}
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
